@@ -1,5 +1,5 @@
 from flask import Blueprint
-from init import db, bcrpyt
+from init import db, bcrypt
 from models.user import User
 
 db_commands = Blueprint("db", __name__)
@@ -15,13 +15,13 @@ def seed_tables():
         User(
             name = "Jess",
             email = "admin@gym.com",
-            password = bcrpyt.generate_password_hash("123456").decode("utf-8"),
+            password = bcrypt.generate_password_hash("123456").decode("utf-8"),
             is_admin = True
         ),
         User(
             name = "Sharla",
             email = "sharla@gym.com",
-            password = bcrpyt.generate_password_hash("sharla1").decode("utf-8")
+            password = bcrypt.generate_password_hash("sharla1").decode("utf-8")
         )
     ]
 
