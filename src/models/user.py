@@ -11,6 +11,8 @@ class User(db.Model):
     password = db.Column(db.String, nullable=False)
     is_admin = db.Column(db.Boolean, default=False)
 
+    workouts = db.relationship("Workout", back_populates="user")
+
 class UserSchema(ma.Schema):
     class Meta:
         workouts = fields.List(fields.Nested("WorkoutSchema", exclude=["user"]))
