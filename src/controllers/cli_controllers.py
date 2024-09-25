@@ -4,6 +4,7 @@ from flask import Blueprint
 from init import db, bcrypt
 from models.user import User
 from models.workouts import Workout
+from models.exercises import Exercises
 
 db_commands = Blueprint("db", __name__)
 
@@ -52,6 +53,29 @@ def seed_tables():
     ]
 
     db.session.add_all(workouts)
+
+    exercises = [
+        Exercises(
+            exercise_name = "Bench Press",
+            target_area = "Chest/Triceps",
+            category = "Hypertrophy/Strength",
+            description = "Maintain slight arch in back, drive feet into ground, shoulders pinned back, bring bar to lower chest maintaining wrists directly over elbows. Focus tension on chest"
+        ),
+        Exercises(
+            exercise_name = "Squat",
+            target_area = "Lower body",
+            category = "Hypertrophy/Strength",
+            description = "Rest bar on upper traps, shoulders pinned back, brace core, lead with your hips going back, maintain bar over middle of feet."
+        ),
+        Exercises(
+            exercise_name = "Deadlift",
+            target_area = "Lower body/Back",
+            category = "Strength",
+            description = "Brace core before lift, maintain neutral spine alignment during lift. Keep bar touching legs throughout entire lift"
+        )
+    ]
+
+    db.session.add_all(exercises)
     db.session.commit()
     print("Tables Seeded Successfully")
 
