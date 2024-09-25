@@ -72,7 +72,12 @@ def seed_tables():
             target_area = "Lower body/Back",
             category = "Strength",
             description = "Brace core before lift, maintain neutral spine alignment during lift. Keep bar touching legs throughout entire lift"
+        ),
+        Exercises(
+            exercise_name = "Treadmill",
+            category = "Cardio",
         )
+
     ]
 
     db.session.add_all(exercises)
