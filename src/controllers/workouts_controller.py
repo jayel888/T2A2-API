@@ -41,6 +41,7 @@ def add_workout():
     db.session.commit()
 
     return workout_schema.dump(workout)
+
 # /workouts/<id> - DELETE - Delete a workout
 @workouts_bp.route("/<int:workout_id>", methods=["DELETE"])
 @jwt_required()
@@ -53,6 +54,7 @@ def delete_workout(workout_id):
         return {"message": f"Workout {workout_id} completed on {workout.date_completed} has been deleted"}
     else:
         return {"error": f"Workout entry with id:{workout_id} does not exist."}, 404
+    
 # /workouts/<id> - PUT,PATCH - Edit a workout entry
 @workouts_bp.route("/<int:workout_id>", methods=["PUT", "PATCH"])
 @jwt_required()
