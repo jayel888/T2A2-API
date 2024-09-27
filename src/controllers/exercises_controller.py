@@ -1,7 +1,7 @@
 from datetime import date
 
 from flask import Blueprint, request
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required
 
 from init import db
 from models.exercises import Exercises, exercise_schema, exercises_schema
@@ -62,7 +62,7 @@ def edit_exercise(exercise_id):
         exercise.exercise_name = body_data.get("exercise_name")
         exercise.target_area = body_data.get("target_area") or exercise.target_area
         exercise.category = body_data.get("category")
-        exercise.description = body_data.get("description")
+        exercise.description = body_data.get("description") or exercise.description
 
         db.session.commit()
         return exercise_schema.dump(exercise)
