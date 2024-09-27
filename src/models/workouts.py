@@ -12,12 +12,14 @@ class Workout(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
 
     user = db.relationship("User", back_populates="workouts")
+    workout_exercises = db.relationship("WorkoutExercises", back_populates="workout", cascade="all, delete")
 
 class WorkoutSchema(ma.Schema):
     user = fields.Nested("UserSchema", only=["id", "name", "email"])
-    
+    workout_exercises = fields.List(fields.Nested("WorkoutExercisesSchema", exclude=["workout"]))
+
     class Meta:
-        fields = ("id", "date_completed", "duration", "notes", "user")
+        fields = ("id", "date_completed", "duration", "notes", "user", "workout_exercises")
     
 workout_schema = WorkoutSchema()
 

@@ -10,7 +10,10 @@ class Exercises(db.Model):
     category = db.Column(db.String, nullable=False)
     description = db.Column(db.String)
 
+    workout_exercises = db.relationship("WorkoutExercises", back_populates="exercise")
+
 class ExercisesSchema(ma.Schema):
+    workout_exercises = fields.List(fields.Nested("WorkoutExercisesSchema", exclude=["exercise"]))
     class Meta:
         fields = ("id", "exercise_name", "target_area", "category", "description")
 

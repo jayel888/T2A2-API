@@ -5,6 +5,7 @@ from init import db, bcrypt
 from models.user import User
 from models.workouts import Workout
 from models.exercises import Exercises
+from models.workout_exercises import WorkoutExercises
 
 db_commands = Blueprint("db", __name__)
 
