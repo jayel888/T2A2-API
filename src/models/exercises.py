@@ -7,7 +7,7 @@ class Exercises(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     exercise_name = db.Column(db.String, nullable=False, unique=True)
     target_area = db.Column(db.String)
-    category = db.Column(db.String, nullable=False)
+    category = db.Column(db.String)
     description = db.Column(db.String)
 
     workout_exercises = db.relationship("WorkoutExercises", back_populates="exercise")
