@@ -21,6 +21,6 @@ class WorkoutExercisesSchema(ma.Schema):
     exercise = fields.Nested("ExercisesSchema", only=["exercise_name"])
     class Meta:
         fields = ("id", "sets", "reps", "weight", "rest_in_seconds", "workout", "exercise")
-
+        ordered=True
 workout_exercise_schema = WorkoutExercisesSchema()
 workout_exercises_schema = WorkoutExercisesSchema(many=True)

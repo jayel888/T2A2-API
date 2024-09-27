@@ -17,7 +17,7 @@ class UserSchema(ma.Schema):
     workouts = fields.List(fields.Nested("WorkoutSchema", exclude=["user"]))
     class Meta:
         fields = ("id","name","email","password","is_admin", "workouts")
-
+        ordered=True
 # Handle a single user object
 user_schema = UserSchema(exclude=["password"])
 
