@@ -1,5 +1,7 @@
 from init import db, ma
 from marshmallow import fields
+from marshmallow.validate import Length
+
 
 class Exercises(db.Model):
     __tablename__ = "exercises"
@@ -14,6 +16,8 @@ class Exercises(db.Model):
 
 class ExercisesSchema(ma.Schema):
     workout_exercises = fields.List(fields.Nested("WorkoutExercisesSchema", exclude=["exercise"]))
+
+    exercise_name = fields.String(required=True, validate=Length(min=3, error="Exercise name must be at least 3 characters in length."))
     class Meta:
         fields = ("id", "exercise_name", "target_area", "category", "description")
         ordered=True

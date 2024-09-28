@@ -57,3 +57,16 @@ def add_exercise_to_workout(workout_id):
     else:
         return {"error": "You do not have permission to modify this workout."}, 403
     
+@workout_exercise_bp.route("/<int:workout_exercises_id>", methods=["DELETE"])
+@jwt_required()
+def delete_exercise_in_workout(workout_id, workout_exercises_id):
+    stmt = db. select(WorkoutExercises).filter_by(id=workout_exercises_id)
+    workout_exercise = db.session.scalar(stmt)
+
+    if workout_exercise:
+        db.session.delete(workout_exercise)
+        db.session.commit()
+        return {"message": f"Exercise id:{workout_exercise.exercise_id} deleted from workout {workout_exercise.workout_id} successfully."}
+    
+    else:
+        return {"error": f"Exercise with id {workout_exercises_id} not found"}
