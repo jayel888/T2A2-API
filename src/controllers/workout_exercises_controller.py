@@ -3,11 +3,11 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from init import db
 from models.workout_exercises import WorkoutExercises, workout_exercise_schema, workout_exercises_schema
-from models.workouts import Workout
+from models.workouts import Workout, workout_schema
 from models.exercises import Exercises
 
 
-workout_exercise_bp = Blueprint("workout_exercises", __name__, url_prefix="/<int:workout_id>/exercises")
+workout_exercise_bp = Blueprint("workout_exercises", __name__, url_prefix="/<int:workout_id>/exercise")
 
 @workout_exercise_bp.route("/", methods=["POST"])
 @jwt_required()
@@ -50,9 +50,10 @@ def add_exercise_to_workout(workout_id):
         db.session.add(workout_exercise)
         db.session.commit()
 
-        return workout_exercise_schema.dump(workout_exercise), 201
+        return workout_schema.dump(workout), 201
 
     elif not workout:
         return {"error": f"Workout with id {workout_id} not found."}, 404
     else:
         return {"error": "You do not have permission to modify this workout."}, 403
+    

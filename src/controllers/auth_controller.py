@@ -50,3 +50,7 @@ def user_login():
         return {"email": user.email, "is_admin": user.is_admin, "token": token}
     else:
         return {"error": "Incorrect email or password"}, 400
+
+# @auth_bp.route("/<int:user_id>", methods=["DELETE"])
+# @jwt_required()
+# def delete_user(user_id)
