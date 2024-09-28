@@ -61,7 +61,7 @@ def edit_exercise(exercise_id):
     if exercise:
         exercise.exercise_name = body_data.get("exercise_name")
         exercise.target_area = body_data.get("target_area") or exercise.target_area
-        exercise.category = body_data.get("category")
+        exercise.category = body_data.get("category") or exercise.category
         exercise.description = body_data.get("description") or exercise.description
 
         db.session.commit()

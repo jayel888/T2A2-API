@@ -5,6 +5,7 @@ from init import db, bcrypt
 from models.user import User
 from models.workouts import Workout
 from models.exercises import Exercises
+from models.workout_exercises import WorkoutExercises
 
 db_commands = Blueprint("db", __name__)
 
@@ -23,8 +24,8 @@ def seed_tables():
             is_admin = True
         ),
         User(
-            name = "Sharla",
-            email = "sharla@gym.com",
+            name = "Joe",
+            email = "joe@gym.com",
             password = bcrypt.generate_password_hash("sharla1").decode("utf-8")
         )
     ]
@@ -76,12 +77,65 @@ def seed_tables():
         Exercises(
             exercise_name = "Treadmill",
             category = "Cardio",
+        ),
+        Exercises(
+            exercise_name = "Incline Dumbell Press",
+            target_area = "Upper Chest/Triceps",
+            category = "Hypertrophy/Strength"
+        ),
+        Exercises(
+            exercise_name = "Cable Chest Flyes",
+            target_area = "Chest",
+            category = "Hypertrophy"
+        ),
+        Exercises(
+            exercise_name = "Weighted Dips",
+            target_area = "Chest/Triceps",
+            category = "Hypertrophy"
         )
 
     ]
 
     db.session.add_all(exercises)
+
+    workout_exercises = [
+        WorkoutExercises(
+            workout = workouts[0],
+            exercise = exercises[0],
+            sets = 3,
+            reps = 12,
+            weight = 87.5,
+            rest_in_seconds = 180
+        ),
+        WorkoutExercises(
+            workout = workouts[0],
+            exercise = exercises[4],
+            sets = 3,
+            reps = 8,
+            weight = 30,
+            rest_in_seconds = 120
+        ),
+        WorkoutExercises(
+            workout = workouts[0],
+            exercise = exercises[5],
+            sets = 3,
+            reps = 15,
+            weight = 15,
+            rest_in_seconds = 75
+        ),
+        WorkoutExercises(
+            workout = workouts[0],
+            exercise = exercises[6],
+            sets = 3,
+            reps = 12,
+            weight = 15,
+            rest_in_seconds = 120
+        )
+    ]
+
+    db.session.add_all(workout_exercises)
     db.session.commit()
+
     print("Tables Seeded Successfully")
 
 @db_commands.cli.command("drop")

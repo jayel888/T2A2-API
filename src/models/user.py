@@ -14,10 +14,10 @@ class User(db.Model):
     workouts = db.relationship("Workout", back_populates="user")
 
 class UserSchema(ma.Schema):
+    workouts = fields.List(fields.Nested("WorkoutSchema", exclude=["user"]))
     class Meta:
-        workouts = fields.List(fields.Nested("WorkoutSchema", exclude=["user"]))
         fields = ("id","name","email","password","is_admin", "workouts")
-
+        ordered=True
 # Handle a single user object
 user_schema = UserSchema(exclude=["password"])
 

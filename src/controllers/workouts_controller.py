@@ -5,8 +5,10 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from init import db
 from models.workouts import Workout, workout_schema, workouts_schema
+from controllers.workout_exercises_controller import workout_exercise_bp
 
 workouts_bp = Blueprint("workouts", __name__, url_prefix="/workouts")
+workouts_bp.register_blueprint(workout_exercise_bp)
 
 # /workouts - GET - fetch all workouts in database
 @workouts_bp.route("/")
