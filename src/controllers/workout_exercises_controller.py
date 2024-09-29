@@ -11,18 +11,14 @@ workout_exercise_bp = Blueprint("workout_exercises", __name__, url_prefix="/<int
 
 @workout_exercise_bp.route("/", methods=["POST"])
 @jwt_required()
-def add_exercise_to_workout(workout_id):
-    # Retrieve the current user from the JWT
-    current_user_id = get_jwt_identity()
-    
+def add_exercise_to_workout(workout_id):   
     body_data = request.get_json()
 
     # Fetch the workout by ID
     stmt = db.select(Workout).filter_by(id=workout_id)
     workout = db.session.scalar(stmt)
 
-    if workout and int(workout.user_id) == int(current_user_id):
-        # Check if the exercise exists in the `exercises` table
+    if workout:
         exercise_name = body_data.get("exercise_name")  # Assuming exercise name is provided
         exercise = db.session.scalar(db.select(Exercises).filter_by(exercise_name=exercise_name))
 
@@ -52,10 +48,8 @@ def add_exercise_to_workout(workout_id):
 
         return workout_schema.dump(workout), 201
 
-    elif not workout:
-        return {"error": f"Workout with id {workout_id} not found."}, 404
     else:
-        return {"error": "You do not have permission to modify this workout."}, 403
+        return {"error": f"Workout with id {workout_id} not found."}, 404
     
 @workout_exercise_bp.route("/<int:workout_exercises_id>", methods=["DELETE"])
 @jwt_required()
@@ -70,3 +64,21 @@ def delete_exercise_in_workout(workout_id, workout_exercises_id):
     
     else:
         return {"error": f"Exercise with id {workout_exercises_id} not found"}
+    
+@workout_exercise_bp.route("/<int:workout_exercises_id>", methods=["PUT", "PATCH"])
+@jwt_required()
+def update_exercise_in_workout(workout_id, workout_exercises_id):
+    body_data = request.get_json()
+    stmt = db.select(WorkoutExercises).filter_by(id=workout_exercises_id)
+    workout_exercise = db.session.scalar(stmt)
+    if workout_exercise:
+        workout_exercise.sets = body_data.get("sets") or workout_exercise.sets
+        workout_exercise.reps = body_data.get("reps") or workout_exercise.reps
+        workout_exercise.weight = body_data.get("weight") or workout_exercise.weight
+        workout_exercise.rest_in_seconds = body_data.get("rest_in_seconds") or workout_exercise.rest_in_seconds
+
+        db.session.commit()
+        return {"message": f"Exercise {workout_exercise.id} in workout {workout_exercise.workout_id} updated successfully"}
+    
+    else:
+        return {"error": f"Exercise {workout_exercises_id} in Workout {workout_id} not found"}
