@@ -69,17 +69,200 @@ Although PostgreSQL is a great budget friendly choice because it ensures data in
 
 ### R5 Explain the features, purpose and functionalities of the object-relational mapping system (ORM) used in this app.
 
+In this app, I have used SQLAlchemy as the object-relational mapping (ORM) system through Flask-SQLAlchemy. The ORM helps bridge the gap between Python code and the database (PostgreSQL), making it easier to interact with the database without needing to write complex SQL queries.
 
+**Features of SQLAlchemy ORM**
+- Simplifies Database Operations:
+Instead of writing raw SQL, the ORM allows me to work with the database using Python objects and methods. This makes things like creating, updating, or deleting records much more user-friendly.
+
+- Automatically Creates Database Tables:
+SQLAlchemy generates the corresponding tables in the database. This helps keep the database structure in sync with my code.
+
+- Handles Relationships Between Tables:
+This allows me to define relationships, like between workouts and exercises, using Python’s object-oriented approach. SQLAlchemy automatically manages the joins and connections between these tables.
+
+- Flexible Querying:
+This feature enables me to filter, sort, and join data using Python expressions instead of SQL queries. For example, querying which exercises are associated with a specific workout is simple to do.
+
+- Data Validation: 
+SQLAlchemy works well with Marshmallow for data validation. This ensures that any data sent to or from the database is correctly formatted and valid.
+
+- Purpose of SQLAlchemy ORM:
+The main goal of using an ORM like SQLAlchemy is to simplify interactions with the database. It lets me manage data using Python code, which speeds up development and reduces the complexity of working directly with SQL. Instead of writing raw SQL for every task, I can treat database records like regular Python objects.
+
+- CRUD Operations: 
+SQLAlchemy makes it easy to add, read, update, and delete records. For example, adding a new exercise or updating a workout is done through simple ORM methods.
+
+- Managing the Database Schema: 
+SQLAlchemy keeps the database structure in line with my Python classes, reducing the risk of mismatches between the code and the database.
+
+- Transaction Handling: 
+The ORM manages database sessions and transactions, ensuring everything is consistent and secure. This helps prevent partial updates or data corruption.
+
+Overall, SQLAlchemy allows me to work with my database in a more efficient and intuitive way, making development faster and helping maintain the applications data integrity.
+
+For example,
+`@workouts_bp.route("/", methods=["POST"])`
+`@jwt_required()`
+`def add_workout():`
+    `body_data = request.get_json()`
+    `workout = Workout(`
+        `date_completed = date.today(),`
+        `duration = body_data.get("duration"),`
+        `notes = body_data.get("notes"),`
+        `user_id = get_jwt_identity()`
+    `)`
+    `db.session.add(workout)`
+    `db.session.commit()`
+    `return workout_schema.dump(workout)`
+
+The above code is used for users to log their workouts using a POST request. it will automatically log the date as the date entered, users can specify how long the entire workout took and any specific notes about the session. 
+
+The `add_workout` route shows how to create a workout and link it with exercises.
+
+`@workouts_bp.route("/")`
+`@jwt_required()`
+`def get_all_workouts():`
+    `current_user_id = get_jwt_identity()`
+    `stmt = db.select(Workout).filter_by(id=current_user_id).order_by(Workout.``date_completed.desc())`
+    `workouts = db.session.scalars(stmt)`
+    `return workouts_schema.dump(workouts)`
+
+The `get_all_workouts` route fetches all workouts logged including the associated exercises. SQLAlchemy ORM managed the relationship between the workouts and exercises using the `workout_exercises` association table. 
 
 ### R6 Design an entity relationship diagram (ERD) for this app’s database, and explain how the relations between the diagrammed models will aid the database design. This should focus on the database design BEFORE coding has begun, eg. during the project planning or design phase.
 
+![Gym Tracker ERD](/docs/Gym%20tracker%20ERD.jpg)
+
+In my ERD, the main entities are:
+- User: Represents all users of the app who can log in and track their workouts
+- Workout: Represents an individual workout session, including information such as the date completed, duration and specific notes.
+- Exercises: Holds all exercises that can be included or associated with a workout
+- WorkoutExercises: The join table that connects a specific workout with specific exercises allowing many to many relationships, ie. a workout can contain multiple exercises and the same exercise can be used in many different workouts.
+
+**Relationships**
+- User > Workout: One to Many as a single user can have many workouts but each workout only belongs to one user.
+This is linked to a specific user via the user_id foreign key. This structures the database to organise data by user, allowing each user to track their own workouts without conflict. 
+- Workout > Exercises: Many to many. A Workout can contain many exercises and an exercise can appear in many different workouts, through the Workout_exercises table. This table includes the additional information like number or sets, reps and weights used for that specific exercise in the workout. Designing it this way improves flexibility as we are able to reuse the same exercise for multiple different workouts and customise each instance (ie. sets and reps)
+
+Utilising a join table helps ensure data normalisation, which avoids data duplication whilst still providing the flexibility to track different configurations of each exercise in different workouts. 
+
+In addition to normalisation and flexibility, this structure enhances Data integrity by using foreign key relationships to ensure the data stays consistent. In summary, this structure enables the application to scale effectively, maintain data integrity whilst keeping it organised which makes it easier to manage and query user-specific workout data. 
 
 
 ### R7 Explain the implemented models and their relationships, including how the relationships aid the database implementation. This should focus on the database implementation AFTER coding has begun, eg. during the project development phase.
 
-### R8 Explain how to use this application’s API endpoints. Each endpoint should be explained, including the following data for each endpoint:
+In my application, the primary models created are User, Workout, Exercise and WorkoutExercises. These models represent the entities required to track the workouts, exercises and user progress.
 
-HTTP verb
-Path or route
-Any required body or header data
-Response
+**User** represents each user of the application. The fields defined are user_id, name, email and password. This has a relationship with the Workout model, as one user can create many workouts. 
+
+**Workout** represents an individual workout session. The fields defined are workout id (primary key), date completed, duration, notes and the foreign key user_id from the User model. Each workout is linked to a single user and can contain many different exercises through the WorkoutExercises table.
+
+**Exercises** represent a specific exercise that can be included in workouts. The fields defined are exercise_id (primary key), exercise name, target area (which body part the exercise focuses on), category ie. Strength, Bodybuilding, Cardio, and a short description. The exercises are added to workouts through the WorkoutExercises table.
+
+**WorkoutExercises** (Join Table) represents the many-to-many relationship between Workouts and Exercises. The fields defined are primary key- id, workout id (foreign key from Workout), exercise id (foreign key from Exercise) sets, reps, weight and rest time. This links the exercises to workouts with additional attributes. 
+
+User to Workout - One to many relationship - This is important for associating workouts to the correct user, ensuring only the user who created the workout can modify and delete it. This is managed by referencing the foreign key user_id in the Workout model.
+
+Workout to Exercises has a many to many relationship which is managed through the join table. This means that the same exercise can be repeated in multiple workouts however the sets, reps and weights can vary.
+
+Each model is responsible for a specific set of data which means the user information is stored separately from the workout data and exercises are also stored independently of workouts. This enables the database to manage and query more efficiently as each table has a distinct purpose. By using these relationships, it helps avoid data duplication and maintain data integrity. A workout must always belong to a user and an exercise must exist in the exercises table before being linked to a workout, which can help prevent invalid or orphaned records. Lastly, these defined relationships allow for flexibility when changes need to be made to the data, ie. updating a workout exercises sets or reps, or details of an exercise. 
+
+### R8 Explain how to use this application’s API endpoints. 
+
+![Register User](/docs/Register%20User.png)
+
+POST request
+localhost:5555/auth/register
+Used to create a new user. Requires body data for "name", "email" and "password". Email must be provided in specific format. Response 201 received for successful creation or 404 if body information doesn't meet requirements
+
+![Login as user](/docs/Login%20as%20user.PNG)
+
+POST request
+localhost:5555/auth/login
+Use this request to log in as a specific user. Requires body data of email and matching password. If incorrect password is provided, an error will be provided stating incorrect email or password. 200 response provided or 400 if the password/email doesn't match.
+
+![Update User](/docs/update%20user.PNG)
+
+PATCH request
+localhost:5555/auth/users
+Request to update information for a user such as name or password. Requires bearer token from correctly logged in user, ie. only the user logged in can change their details, not for anyone else. 
+Requires "name" or "password" in body request. 
+
+![Fetch all workouts](/docs/fetch%20all%20workouts.PNG)
+
+GET Request 
+localhost:5555/workouts
+Use to fetch all workouts logged in the database. No body information or auth required. Each workout will show information such as id, date completed, duration, any notes, the user that created the workout and all exercises completed with sets, reps, weights and rest time. 200 response provides all existing workouts
+
+![Fetch Single workout](/docs/fetch%20single%20workout.PNG)
+
+GET Request
+localhost:5555/workouts/<int:workout_id>
+This request fetches a single specified workout, providing all the same information as the get all request. 200 response provided if workout exists. 404 response if workout_id not found. 
+
+![Add a new workout](/docs/add%20a%20workout.PNG)
+
+POST Request
+localhost:5555/workouts/
+This request is used to log new workouts. User must be logged in and provide bearer token. Body information for duration must be provided, where notes is nullable. The date and user are automatically recorded depending on who's logged in and the date it is created. 
+
+![Delete a workout](/docs/delete%20workout.PNG)
+
+DELETE request
+localhost:5555/workouts/<int:workout_id>
+Request used to delete a workout from database. Workout id to be deleted must be specified in the path url. The user who created the workout must be logged in to delete it. No other use can delete any one elses workouts. 403 response provided if user doesn't have permission to delete. 404 response provided if workout doesn't exist. 
+
+![Edit a workout](/docs/edit%20a%20workout.PNG)
+
+PUT/PATCH request
+localhost:5555/workouts/<int:workout_id>
+Updates notes or duration on a workout. User must be logged in to change their own workout, unable to change other users workouts. Notes or duration to be provided in the json body request. 403 error provided if user doesn't have permissions, or 404 if workout doesn't exist.
+
+![Fetch all exercises](/docs/get%20all%20exercises.PNG)
+
+GET Request
+localhost:5555/exercises
+Retrieves all exercises in the database. No body data or auth required to fetch exercises
+
+![Fetch single exercise](/docs/fetch%20specific%20exercise.PNG)
+
+GET Request
+localhost:5555/exercises
+Retrieves specific exercises in the database. No body data or auth required to fetch exercise. 404 error if exercise doesn't exist. 
+
+![Add an exercise](/docs/add%20exercise.PNG)
+
+POST request
+localhost:5555/exercises
+Request used to add an exercise to database. Any user can add an exercise, must be logged in. Json body information requires "exercise name", however, target area, category and description are optional. If category or target area are provided, must meet one of the valid inputs provided. 400 repsonse if exercise already exists.
+
+![Delete an exercise](/docs/delete%20an%20exercise.PNG)
+
+DELETE request
+localhost:5555/exercises/<int:exercise_id>
+Request to delete an exercise. Auth requires login from an Admin, as admin are only able to delete exercises. 404 response received if exercise id doesn't exist.
+
+![Edit an exercise](/docs/edit%20an%20exercise.PNG)
+
+PUT/PATCH request
+localhost:5555/exercises/<int:exercise_id>
+Used to update an already entered exercise. Auth required, must be logged in to make changes. Users are able to update exercise name, target area, category or description provided in body request. Inputs for target area and category must meet valid inputs provided. 
+
+![Add exercise to workout](/docs/add%20exercise%20to%20workout.PNG)
+
+POST request
+localhost:5555/workouts/<int:workout_id>/exercise
+This request adds specific exercises to a specific workout. User that created the workout must be logged in to make changes. Code checks if exercise already exists, if it doesn't it will add it to the database and workout. Fields such as exercise name is required. Optional fields in target area, category, description, sets, reps, weight and rest time. 404 error code received if specific workout id does not exist. 403 if user doesn't have permission to modify workout.
+
+![Delete exercise from workout](/docs/delete%20exercise%20from%20workout.PNG)
+
+DELETE Request
+localhost:5555/workouts/<int:workout_id>/exercise/<int:workout_exercises_id>
+This request deletes a specific exercise from a workout using the join table workoutexercises id. User must be logged in to delete workout.
+
+![Update exercise data in specific workout](/docs/edit%20exercise%20in%20workout.PNG)
+
+PUT/PATCH request
+localhost:5555/workouts/<int:workout_id>/exercise/<int:workout_exercises_id>
+This request is used to edit the sets, reps, weight or rest time of a specific exercise already linked to a workout. User must be logged in to edit the workout and information that is to be updated must be included in the body request data. 
