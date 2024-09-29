@@ -5,6 +5,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from init import db
 from models.workouts import Workout, workout_schema, workouts_schema
+
 from controllers.workout_exercises_controller import workout_exercise_bp
 
 workouts_bp = Blueprint("workouts", __name__, url_prefix="/workouts")
@@ -51,6 +52,9 @@ def delete_workout(workout_id):
     stmt = db.select(Workout).filter_by(id=workout_id)
     workout = db.session.scalar(stmt)
     if workout:
+        if workout.user_id != get_jwt_identity():
+            return {"error": "Unable to perform operation. Only owners are allowed to execute this operation"}
+        
         db.session.delete(workout)
         db.session.commit()
         return {"message": f"Workout {workout_id} completed on {workout.date_completed} has been deleted"}
@@ -65,6 +69,9 @@ def edit_workout(workout_id):
     stmt = db.select(Workout).filter_by(id=workout_id)
     workout = db.session.scalar(stmt)
     if workout:
+        if workout.user_id != get_jwt_identity():
+            return {"error": "Unable to perform operation. Only owners are allowed to execute this operation"}
+        
         workout.duration = body_data.get("duration") or workout.duration
         workout.notes = body_data.get("notes") or workout.notes
 
@@ -73,3 +80,4 @@ def edit_workout(workout_id):
     
     else:
         return {"error": f"Workout with id:{workout_id} cannot be found."}, 404
+    

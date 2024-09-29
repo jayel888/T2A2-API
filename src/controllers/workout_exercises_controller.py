@@ -13,12 +13,12 @@ workout_exercise_bp = Blueprint("workout_exercises", __name__, url_prefix="/<int
 @jwt_required()
 def add_exercise_to_workout(workout_id):   
     body_data = request.get_json()
-
+    current_user = get_jwt_identity()
     # Fetch the workout by ID
     stmt = db.select(Workout).filter_by(id=workout_id)
     workout = db.session.scalar(stmt)
 
-    if workout:
+    if workout and int(workout.user_id) == int(current_user):
         exercise_name = body_data.get("exercise_name")  # Assuming exercise name is provided
         exercise = db.session.scalar(db.select(Exercises).filter_by(exercise_name=exercise_name))
 
@@ -48,22 +48,24 @@ def add_exercise_to_workout(workout_id):
 
         return workout_schema.dump(workout), 201
 
-    else:
+    elif not workout:
         return {"error": f"Workout with id {workout_id} not found."}, 404
+    else:
+        return {"error": "You do not have permission to modify this workout."}, 403
     
 @workout_exercise_bp.route("/<int:workout_exercises_id>", methods=["DELETE"])
 @jwt_required()
 def delete_exercise_in_workout(workout_id, workout_exercises_id):
     stmt = db. select(WorkoutExercises).filter_by(id=workout_exercises_id)
     workout_exercise = db.session.scalar(stmt)
-
+    
     if workout_exercise:
         db.session.delete(workout_exercise)
         db.session.commit()
         return {"message": f"Exercise id:{workout_exercise.exercise_id} deleted from workout {workout_exercise.workout_id} successfully."}
     
     else:
-        return {"error": f"Exercise with id {workout_exercises_id} not found"}
+        return {"error": f"Exercise with id {workout_exercises_id} not found"}, 404
     
 @workout_exercise_bp.route("/<int:workout_exercises_id>", methods=["PUT", "PATCH"])
 @jwt_required()
