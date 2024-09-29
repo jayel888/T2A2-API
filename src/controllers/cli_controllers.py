@@ -58,25 +58,26 @@ def seed_tables():
     exercises = [
         Exercises(
             exercise_name = "Bench Press",
-            target_area = "Chest/Triceps",
-            category = "Hypertrophy/Strength",
+            target_area = "Chest",
+            category = "Compound",
             description = "Maintain slight arch in back, drive feet into ground, shoulders pinned back, bring bar to lower chest maintaining wrists directly over elbows. Focus tension on chest"
         ),
         Exercises(
             exercise_name = "Squat",
-            target_area = "Lower body",
-            category = "Hypertrophy/Strength",
+            target_area = "Legs",
+            category = "Compound",
             description = "Rest bar on upper traps, shoulders pinned back, brace core, lead with your hips going back, maintain bar over middle of feet."
         ),
         Exercises(
             exercise_name = "Deadlift",
-            target_area = "Lower body/Back",
-            category = "Strength",
+            target_area = "Back",
+            category = "Compound",
             description = "Brace core before lift, maintain neutral spine alignment during lift. Keep bar touching legs throughout entire lift"
         ),
         Exercises(
             exercise_name = "Treadmill",
-            category = "Cardio",
+            target_area = "Cardio",
+            category = "Cardio"
         ),
         Exercises(
             exercise_name = "Incline Dumbell Press",
