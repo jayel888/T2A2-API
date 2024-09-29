@@ -8,9 +8,10 @@ from psycopg2 import errorcodes
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 
 
-
+# Create blueprint to register in main.py
 auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
 
+# route to create a user
 @auth_bp.route("/register", methods=["POST"])
 def register_user():
     try:
@@ -37,6 +38,8 @@ def register_user():
         if err.orig.pgcode == errorcodes.UNIQUE_VIOLATION:
             return {"error": "Email address already in use"}, 400
 
+
+# Route to login as a specific user
 @auth_bp.route("/login", methods=["POST"])
 def user_login():
     # retrieves data from the body of the request
@@ -53,19 +56,25 @@ def user_login():
     else:
         return {"error": "Incorrect email or password"}, 400
 
+# Route to update user details such as Name or password
 @auth_bp.route("/users/", methods=["PUT", "PATCH"])
 @jwt_required()
 def update_user():
+    # retrieve data from body of request
     body_data = UserSchema().load(request.get_json(), partial=True)
     password = body_data.get("password")
+    # locates user filtering by logged in user
     stmt = db.select(User).filter_by(id=get_jwt_identity())
     user = db.session.scalar(stmt)
-
+    # ensures only the logged in user can update the details of their account
     if user:
         user.name = body_data.get("name") or user.name
         if password:
+            #  generated password hash for new password
             user.password = bcrypt.generate_password_hash(password).decode("utf-8")
         db.session.commit()
+        # returns user details
         return user_schema.dump(user)
     else:
-        return {"error": "User does not exist"}
+        # returns error if user does not exist
+        return {"error": "User does not exist"}, 404

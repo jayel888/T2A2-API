@@ -7,13 +7,16 @@ from models.workouts import Workout
 from models.exercises import Exercises
 from models.workout_exercises import WorkoutExercises
 
+# create blueprint to register in main.py
 db_commands = Blueprint("db", __name__)
 
+# create cli commands for testing, to create all tables
 @db_commands.cli.command("create")
 def create_tables():
     db.create_all()
     print("Tables Created")
 
+# command to seed tables with test data
 @db_commands.cli.command("seed")
 def seed_tables():
     users = [
@@ -30,6 +33,7 @@ def seed_tables():
         )
     ]
 
+    # adds all users
     db.session.add_all(users)
 
     workouts = [
@@ -53,6 +57,7 @@ def seed_tables():
         )
     ]
 
+    # adds all workouts
     db.session.add_all(workouts)
 
     exercises = [
@@ -81,7 +86,7 @@ def seed_tables():
         ),
         Exercises(
             exercise_name = "Incline Dumbell Press",
-            target_area = "Upper Chest/Triceps",
+            target_area = "Chest",
             category = "Hypertrophy/Strength"
         ),
         Exercises(
@@ -91,12 +96,12 @@ def seed_tables():
         ),
         Exercises(
             exercise_name = "Weighted Dips",
-            target_area = "Chest/Triceps",
+            target_area = "Chest",
             category = "Hypertrophy"
         )
-
     ]
 
+    # adds all exercises
     db.session.add_all(exercises)
 
     workout_exercises = [
@@ -134,11 +139,14 @@ def seed_tables():
         )
     ]
 
+    # adds exercises to specific workout
     db.session.add_all(workout_exercises)
+    # commit all changes
     db.session.commit()
 
     print("Tables Seeded Successfully")
 
+# commands to drop all tables
 @db_commands.cli.command("drop")
 def drop_tables():
     db.drop_all()

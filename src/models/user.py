@@ -17,6 +17,7 @@ class User(db.Model):
 class UserSchema(ma.Schema):
     workouts = fields.List(fields.Nested("WorkoutSchema", exclude=["user"]))
 
+    # validation for email, ensuring it meets specific requirements
     email = fields.String(required=True, validate=Regexp("^\S+@\S+\.\S+$", error="Invalid email format."))
 
     class Meta:

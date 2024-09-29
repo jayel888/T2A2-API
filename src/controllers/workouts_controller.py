@@ -49,11 +49,12 @@ def add_workout():
 @workouts_bp.route("/<int:workout_id>", methods=["DELETE"])
 @jwt_required()
 def delete_workout(workout_id):
+    current_user = get_jwt_identity()
     stmt = db.select(Workout).filter_by(id=workout_id)
     workout = db.session.scalar(stmt)
     if workout:
-        if workout.user_id != get_jwt_identity():
-            return {"error": "Unable to perform operation. Only owners are allowed to execute this operation"}
+        if int(workout.user_id) != int(current_user):
+            return {"error": "Unable to perform operation. Only owners are allowed to execute this operation"}, 403
         
         db.session.delete(workout)
         db.session.commit()
@@ -65,12 +66,13 @@ def delete_workout(workout_id):
 @workouts_bp.route("/<int:workout_id>", methods=["PUT", "PATCH"])
 @jwt_required()
 def edit_workout(workout_id):
+    current_user = get_jwt_identity()
     body_data = request.get_json()
     stmt = db.select(Workout).filter_by(id=workout_id)
     workout = db.session.scalar(stmt)
     if workout:
-        if workout.user_id != get_jwt_identity():
-            return {"error": "Unable to perform operation. Only owners are allowed to execute this operation"}
+        if int(workout.user_id) != int(current_user):
+            return {"error": "Unable to perform operation. Only owners are allowed to execute this operation"}, 403
         
         workout.duration = body_data.get("duration") or workout.duration
         workout.notes = body_data.get("notes") or workout.notes

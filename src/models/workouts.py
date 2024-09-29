@@ -11,6 +11,7 @@ class Workout(db.Model):
 
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
 
+    # create relationship between User and Workout_exercises table
     user = db.relationship("User", back_populates="workouts")
     workout_exercises = db.relationship("WorkoutExercises", back_populates="workout", cascade="all, delete")
 

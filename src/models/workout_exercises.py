@@ -5,6 +5,7 @@ class WorkoutExercises(db.Model):
     __tablename__ = "workout_exercises"
 
     id = db.Column(db.Integer, primary_key=True)
+    # foreign keys from workout and exercises table
     workout_id = db.Column(db.Integer, db.ForeignKey("workouts.id"), nullable=False)
     exercise_id = db.Column(db.Integer, db.ForeignKey("exercises.id"), nullable=False)
 
@@ -13,6 +14,7 @@ class WorkoutExercises(db.Model):
     weight = db.Column(db.Float)
     rest_in_seconds = db.Column(db.Integer)
 
+    # creating relationship between Workout and Exercises table
     workout = db.relationship("Workout", back_populates="workout_exercises")
     exercise = db.relationship("Exercises", back_populates="workout_exercises")
 
@@ -22,5 +24,6 @@ class WorkoutExercisesSchema(ma.Schema):
     class Meta:
         fields = ("id", "sets", "reps", "weight", "rest_in_seconds", "workout", "exercise")
         ordered=True
+        
 workout_exercise_schema = WorkoutExercisesSchema()
 workout_exercises_schema = WorkoutExercisesSchema(many=True)
