@@ -5,6 +5,7 @@ from flask_jwt_extended import jwt_required
 
 from init import db
 from models.exercises import Exercises, exercise_schema, exercises_schema
+from utils import authorise_as_admin
 
 exercises_bp = Blueprint("exercises", __name__, url_prefix="/exercises")
 
@@ -57,6 +58,10 @@ def add_exercise():
 @exercises_bp.route("/<int:exercise_id>", methods=["DELETE"])
 @jwt_required()
 def delete_exercise(exercise_id):
+    # Only admin can delete exercises from database, but users can still edit.
+    is_admin = authorise_as_admin()
+    if not is_admin:
+        return {"error": "User is not authorised to perform this acftion."}
     stmt = db.select(Exercises).filter_by(id=exercise_id)
     exercise = db.session.scalar(stmt)
     if exercise:
