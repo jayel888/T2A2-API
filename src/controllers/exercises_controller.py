@@ -54,20 +54,6 @@ def add_exercise():
         db.session.rollback()
         return {"error": "An error occurred while adding the exercise."}, 500
     
-# def add_exercise():
-#     body_data = exercise_schema.load(request.get_json())
-#     exercise = Exercises(
-#         exercise_name = body_data.get("exercise_name"),
-#         target_area = body_data.get("target_area"),
-#         category = body_data.get("category"),
-#         description = body_data.get("description")
-#     )
-
-#     db.session.add(exercise)
-#     db.session.commit()
-
-#     return exercise_schema.dump(exercise)
-
 @exercises_bp.route("/<int:exercise_id>", methods=["DELETE"])
 @jwt_required()
 def delete_exercise(exercise_id):
@@ -84,7 +70,7 @@ def delete_exercise(exercise_id):
 @exercises_bp.route("/<int:exercise_id>", methods=["PUT", "PATCH"])
 @jwt_required()
 def edit_exercise(exercise_id):
-    body_data = exercise_schema.load(request.get_json())
+    body_data = exercise_schema.load(request.get_json(), partial=True)
     stmt = db.select(Exercises).filter_by(id=exercise_id)
     exercise = db.session.scalar(stmt)
     if exercise:
